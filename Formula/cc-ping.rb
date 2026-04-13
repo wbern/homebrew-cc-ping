@@ -6,7 +6,7 @@ class CcPing < Formula
 
   livecheck do
     url "https://github.com/wbern/cc-ping/releases/latest"
-    regex(%r{href=.*?/tag/v)(\d+(?:\.\d+)+)(["' >])
+    regex(/v(\d+(?:\.\d+)+)/i)
   end
 
   if OS.mac?

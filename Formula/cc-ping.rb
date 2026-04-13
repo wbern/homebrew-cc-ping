@@ -31,6 +31,11 @@ class CcPing < Formula
       "cc-ping-linux-x64"
     end
     bin.install binary_name => "cc-ping"
+
+    # Clear macOS quarantine/provenance to allow unsigned Bun-compiled binaries to run
+    if OS.mac?
+      system "xattr", "-c", bin/"cc-ping"
+    end
   end
 
   test do

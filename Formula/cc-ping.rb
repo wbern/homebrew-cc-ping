@@ -2,7 +2,7 @@ class CcPing < Formula
   desc "Ping Claude Code sessions to trigger quota windows across multiple accounts"
   homepage "https://github.com/wbern/cc-ping"
   license "MIT"
-  version "1.20.0"
+  version "1.21.0"
 
   livecheck do
     url "https://github.com/wbern/cc-ping/releases/latest"
@@ -12,14 +12,14 @@ class CcPing < Formula
   if OS.mac?
     if Hardware::CPU.arm?
       url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-darwin-arm64"
-      sha256 "1590f27435999cdf70278041ae473a2719a036ffa42ce3be0f9e846988ea566e"
+      sha256 "3a45bd1cce543f5a2613fe7f54abb93251868f108ceeda54573185c37e8638a4"
     else
       url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-darwin-x64"
-      sha256 "a25b171f0a816b5b2fa8a5c5d60f359a05c76f4ac24e1acbc1bcecf6f5088e90"
+      sha256 "700f5d4e4ff2dc92bc44725028d30085ff8765cf9729293b5143fb2a5ffe590e"
     end
   elsif OS.linux?
     url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-linux-x64"
-    sha256 "8acd49d5cde7b88f5c49762ff1e9bf0db0dafbd8265c878ef173504fe8175424"
+    sha256 "7e6b71e2a56e5f5fd5efc223bf3fef7708962e90aabaa306e7428b98be129a86"
   else
     odie "cc-ping: unsupported platform"
   end

@@ -2,7 +2,7 @@ class CcPing < Formula
   desc "Ping Claude Code sessions to trigger quota windows across multiple accounts"
   homepage "https://github.com/wbern/cc-ping"
   license "MIT"
-  version "1.21.1"
+  version "1.21.2"
 
   livecheck do
     url "https://github.com/wbern/cc-ping/releases/latest"
@@ -10,31 +10,33 @@ class CcPing < Formula
   end
 
   if OS.mac?
-    if Hardware::CPU.arm?
-      url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-darwin-arm64"
-      sha256 "763eb064ad674c1a78365d0c3483f24f26d116f92c37c2e8deb9b19ec3d9a510"
-    else
-      url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-darwin-x64"
-      sha256 "2f2f8d4f56ecd144f3490d15ab59c0393bc033b2fa3a2c7ac41b0026ecdb842c"
-    end
+    # Build from source on the user's machine. Pre-built binaries
+    # downloaded from GitHub Releases get tagged with macOS Sequoia's
+    # com.apple.provenance xattr, which Gatekeeper blocks for
+    # ad-hoc-signed Mach-O binaries.
+    url "https://github.com/wbern/cc-ping/archive/refs/tags/v#{version}.tar.gz"
+    sha256 "ad6c1109dc84782125194503ae1bf1e8d2a8f2f2298666b7af65c81c1482ada3"
+    depends_on "oven-sh/bun/bun" => :build
   elsif OS.linux?
     url "https://github.com/wbern/cc-ping/releases/download/v#{version}/cc-ping-linux-x64"
-    sha256 "894a94cc53c51ea577fbff6d47cee61a3d9c5a7d8f957392459c3f99f8ec473a"
+    sha256 "2084e348949f7b03eb2c3a7df40d81c911f02922dcdd3dc1b6a191c18d1dde7f"
   else
     odie "cc-ping: unsupported platform"
   end
 
   def install
-    binary_name = if OS.mac?
-      Hardware::CPU.arm? ? "cc-ping-darwin-arm64" : "cc-ping-darwin-x64"
-    else
-      "cc-ping-linux-x64"
-    end
-    bin.install binary_name => "cc-ping"
-
     if OS.mac?
-      system "codesign", "--remove-signature", bin/"cc-ping"
-      system "codesign", "--force", "--sign", "-", bin/"cc-ping"
+      ENV["BUN_INSTALL_CACHE_DIR"] = buildpath/"bun-cache"
+      system "bun", "install", "--no-save"
+      system "bun", "build", "--compile", "--minify",
+             "--define", "__VERSION__=\"\\\"#{version}\\\"\"",
+             "./src/cli.ts", "--outfile", "cc-ping"
+      # Re-sign ad-hoc to satisfy Gatekeeper after compile.
+      system "codesign", "--remove-signature", "cc-ping"
+      system "codesign", "--force", "--sign", "-", "cc-ping"
+      bin.install "cc-ping"
+    else
+      bin.install "cc-ping-linux-x64" => "cc-ping"
     end
   end
 
